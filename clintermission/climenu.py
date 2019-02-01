@@ -19,9 +19,10 @@ class CliMenuHeader:
 
 class CliMenuOption:
     """Hold a menu option"""
-    def __init__(self, text, num):
+    def __init__(self, text, num, item=None):
         self.text = text
         self.num = num
+        self.item = item
         self.focusable = True
 
 
@@ -100,15 +101,23 @@ class CliMenu:
         for text in title.split('\n'):
             self._items.append(CliMenuHeader(text))
 
-    def add_option(self, text):
-        self._items.append(CliMenuOption(text, self._item_num))
+    def add_option(self, text, item=None):
+        self._items.append(CliMenuOption(text, self._item_num, item=item))
         self._item_num += 1
 
     def get_selection(self):
         if not self._ran:
             self._run()
 
-        return self._items[self._pos].num
+        item = self._items[self._pos]
+
+        return (item.num, item.item)
+
+    def get_selection_num(self):
+        return self.get_selection()[0]
+
+    def get_selection_item(self):
+        return self.get_selection()[1]
 
     def cursor(self):
         return '{} '.format(self._cursor)
