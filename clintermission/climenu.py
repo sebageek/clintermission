@@ -157,6 +157,10 @@ class CliMenu:
 
         while True:
             self._pos = (self._pos + direction) % len(self._items)
+
+            # move cursor of buffer along with the selected option
+            self._buf.cursor_position = self._doc.translate_row_col_to_index(self._pos, 0)
+
             if self._items[self._pos].focusable:
                 break
 
@@ -188,10 +192,6 @@ class CliMenu:
             self._success = True
             event.app.exit()
 
-        # set initial pos
-        if not self._items[self._pos].focusable:
-            self.next_item(1)
-
         text = '\n'.join(map(lambda _x: _x.text, self._items))
         self._doc = Document(text, cursor_position=self._pos)
         self._buf = Buffer(read_only=True, document=self._doc)
@@ -200,6 +200,11 @@ class CliMenu:
         split = HSplit([Window(self._bufctrl,
                                wrap_lines=True,
                                always_hide_cursor=True)])
+
+        # set initial pos
+        if not self._items[self._pos].focusable:
+            self.next_item(1)
+
         app = Application(layout=Layout(split),
                           key_bindings=self._kb,
                           full_screen=False,
