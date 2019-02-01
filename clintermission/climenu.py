@@ -105,13 +105,20 @@ class CliMenu:
         self._items.append(CliMenuOption(text, self._item_num, item=item))
         self._item_num += 1
 
-    def get_selection(self):
+    @property
+    def success(self):
         if not self._ran:
             self._run()
 
-        item = self._items[self._pos]
+        return self._success
 
-        return (item.num, item.item)
+    def get_selection(self):
+        if self.success:
+            item = self._items[self._pos]
+
+            return (item.num, item.item)
+        else:
+            return (None, None)
 
     def get_selection_num(self):
         return self.get_selection()[0]
