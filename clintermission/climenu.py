@@ -185,10 +185,12 @@ class CliMenu:
             event.app.exit()
 
         @self._kb.add('down')
+        @self._kb.add('j')
         def down(event):
             self.next_item(1)
 
         @self._kb.add('up')
+        @self._kb.add('k')
         def up(event):
             self.next_item(-1)
 
