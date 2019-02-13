@@ -91,11 +91,14 @@ class CliMenu:
             self._style = self.default_stye
 
         if header:
-            self.add_header(header)
+            self.add_header(header, indent=False)
 
         if options:
             for option in options:
-                self.add_option(option)
+                if isinstance(option, tuple):
+                    self.add_option(*option)
+                else:
+                    self.add_option(option)
 
     def add_header(self, title, indent=True):
         for text in title.split('\n'):
