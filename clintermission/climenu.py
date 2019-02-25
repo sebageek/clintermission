@@ -1,12 +1,13 @@
 # Written by Sebastian Lohff <seba@someserver.de>
 # Licensed under Apache License 2.0
 from prompt_toolkit.application import Application
-from prompt_toolkit.layout import Layout, Window, HSplit
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout.controls import BufferControl
-from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.document import Document
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout import Layout, Window, HSplit
+from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout.processors import Processor, Transformation
+from prompt_toolkit.widgets import SearchToolbar
 
 
 class CliMenuHeader:
