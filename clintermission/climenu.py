@@ -3,10 +3,12 @@
 from prompt_toolkit.application import Application
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
+from prompt_toolkit.filters import is_searching
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, Window, HSplit
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout.processors import Processor, Transformation
+from prompt_toolkit import search
 from prompt_toolkit.widgets import SearchToolbar
 
 
@@ -139,6 +141,8 @@ class CliMenu:
         return ' ' * (len(self._cursor) + 1 * self._dedent_selection)
 
     def _transform_line(self, ti):
+        if len(list(ti.fragments)) == 0:
+            return Transformation(ti.fragments)
         style, text = list(ti.fragments)[0]
         item = self._items[ti.lineno]
         s = self._style
@@ -160,7 +164,9 @@ class CliMenu:
                 indent += ' ' * (self._header_indent + len(self._cursor) + 1)
             style = s.header_style
 
-        return Transformation([('', indent), (style, prefix + text)])
+        items = [(s if s else style, t) for s, t in ti.fragments]
+
+        return Transformation([('', indent), (style, prefix)] + items)
 
     def next_item(self, direction):
         if not any(item.focusable for item in self._items):
@@ -175,6 +181,38 @@ class CliMenu:
             if self._items[self._pos].focusable:
                 break
 
+    def sync_cursor_to_line(self, line, sync_dir=1):
+        """Sync cursor to next fousable item starting on `line`"""
+        assert sync_dir in (1, -1)
+
+        self._pos = line
+        while not self._items[self._pos].focusable:
+            self._pos = (self._pos + sync_dir) % len(self._items)
+        self._buf.cursor_position = self._doc.translate_row_col_to_index(self._pos, 0)
+
+    def _get_search_result_lines(self):
+        """Get a list of all lines that have a match with the current search result"""
+        if not self._bufctrl.search_state.text:
+            return []
+
+        idx_list = []
+        i = 1
+        while True:
+            next_idx = self._buf.get_search_position(self._bufctrl.search_state, count=i,
+                                                     include_current_position=False)
+            if next_idx in idx_list:
+                break
+            idx_list.append(next_idx)
+            i += 1
+
+        lines = []
+        for idx in idx_list:
+            line, _ = self._doc.translate_index_to_position(idx)
+            if line not in lines:
+                lines.append(line)
+
+        return lines
+
     def _run(self):
         class MenuColorizer(Processor):
             def apply_transformation(_self, ti):
@@ -183,40 +221,62 @@ class CliMenu:
         # keybindings
         self._kb = KeyBindings()
 
-        @self._kb.add('q')
+        @self._kb.add('q', filter=~is_searching)
         @self._kb.add('c-c')
         def quit(event):
             event.app.exit()
 
-        @self._kb.add('down')
-        @self._kb.add('j')
+        @self._kb.add('down', filter=~is_searching)
+        @self._kb.add('j', filter=~is_searching)
         def down(event):
             self.next_item(1)
 
-        @self._kb.add('up')
-        @self._kb.add('k')
+        @self._kb.add('up', filter=~is_searching)
+        @self._kb.add('k', filter=~is_searching)
         def up(event):
             self.next_item(-1)
 
-        @self._kb.add('right')
-        @self._kb.add('c-m')
-        @self._kb.add('c-space')
+        @self._kb.add('N', filter=~is_searching)
+        @self._kb.add('n', filter=~is_searching)
+        def search_inc(event, filter=is_searching):
+            if not self._bufctrl.search_state.text:
+                return
+
+            search_dir = 1 if event.data == 'n' else -1
+            sr_lines = self._get_search_result_lines()
+            if sr_lines:
+                line = sr_lines[search_dir] if len(sr_lines) > 1 else sr_lines[0]
+                self.sync_cursor_to_line(line, search_dir)
+
+        @self._kb.add('c-m', filter=~is_searching)
+        @self._kb.add('right', filter=~is_searching)
+        @self._kb.add('c-space', filter=~is_searching)
         def accept(event):
             self._success = True
             event.app.exit()
+
+        @self._kb.add('c-m', filter=is_searching)
+        def accept_search(event):
+            search.accept_search()
+            new_line, _ = self._doc.translate_index_to_position(self._buf.cursor_position)
+            self.sync_cursor_to_line(new_line)
+
+        self._searchbar = SearchToolbar(ignore_case=True)
 
         text = '\n'.join(map(lambda _x: _x.text, self._items))
         self._doc = Document(text, cursor_position=self._pos)
         self._buf = Buffer(read_only=True, document=self._doc)
         self._bufctrl = BufferControl(self._buf,
+                                      search_buffer_control=self._searchbar.control,
+                                      preview_search=True,
                                       input_processors=[MenuColorizer()])
         split = HSplit([Window(self._bufctrl,
                                wrap_lines=True,
-                               always_hide_cursor=True)])
+                               always_hide_cursor=True),
+                        self._searchbar])
 
         # set initial pos
-        if not self._items[self._pos].focusable:
-            self.next_item(1)
+        self.sync_cursor_to_line(0)
 
         app = Application(layout=Layout(split),
                           key_bindings=self._kb,
