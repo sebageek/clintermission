@@ -118,6 +118,13 @@ class CliMenu:
 
         return self._success
 
+    def get_options(self):
+        return self._items
+
+    @property
+    def num_options(self):
+        return len(self._items)
+
     def get_selection(self):
         if self.success:
             item = self._items[self._pos]
