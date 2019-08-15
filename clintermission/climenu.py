@@ -71,7 +71,7 @@ class CliMenuTheme:
 
 
 class CliMenu:
-    default_stye = CliMenuTheme.BASIC
+    default_style = CliMenuTheme.BASIC
     default_cursor = CliMenuCursor.TRIANGLE
 
     def __init__(self, options=None, header=None, cursor=None, style=None,
@@ -91,7 +91,7 @@ class CliMenu:
 
         self._style = style
         if not self._style:
-            self._style = self.default_stye
+            self._style = self.default_style
 
         if header:
             self.add_header(header, indent=False)
