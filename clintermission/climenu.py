@@ -68,6 +68,7 @@ class CliMenuTheme:
     CYAN = CliMenuStyle('cyan', 'lightcyan', 'cyan')
     BLUE = CliMenuStyle('ansiblue', 'ansired', 'ansiblue')
     ANSI_CYAN = CliMenuStyle('ansicyan', 'ansibrightcyan', 'ansicyan')
+    BOLD_HIGHLIGHT = CliMenuStyle(header_style='bold', highlight_style='bold fg:black bg:white')
 
 
 class CliMenu:
