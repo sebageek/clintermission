@@ -120,11 +120,11 @@ class CliMenu:
         return self._success
 
     def get_options(self):
-        return self._items
+        return [_item for _item in self._items if isinstance(_item, CliMenuOption)]
 
     @property
     def num_options(self):
-        return len(self._items)
+        return self._item_num
 
     def get_selection(self):
         if self.success:
