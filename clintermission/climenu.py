@@ -295,9 +295,15 @@ class CliMenu:
         self._ran = True
 
 
-def cli_select_item(options, header=None, abort_exc=ValueError, abort_text="Selection aborted.", style=None):
+def cli_select_item(options, header=None, abort_exc=ValueError, abort_text="Selection aborted.", style=None,
+                    return_single=True):
     """Helper function to quickly get a selection with just a few arguments"""
     menu = CliMenu(header=header, options=options, style=style)
+
+    if return_single and menu.num_options == 1:
+        item = menu.get_options()[0]
+        return item.num, item.item
+
     if not menu.success:
         raise abort_exc(abort_text)
 
