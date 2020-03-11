@@ -99,10 +99,10 @@ class CliMenu:
 
         if options:
             for option in options:
-                if isinstance(option, tuple):
+                if isinstance(option, tuple) and len(option) == 2:
                     self.add_option(*option)
                 else:
-                    self.add_option(option)
+                    self.add_option(option, option)
 
     def add_header(self, title, indent=True):
         for text in title.split('\n'):
