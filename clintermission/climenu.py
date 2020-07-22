@@ -95,7 +95,7 @@ class CliMenu:
             self._style = self.default_style
 
         if header:
-            self.add_header(header, indent=False)
+            self.add_text(header, indent=False)
 
         if options:
             for option in options:
@@ -104,7 +104,10 @@ class CliMenu:
                 else:
                     self.add_option(option, option)
 
-    def add_header(self, title, indent=True):
+    def add_header(self, *args, **kwargs):
+        return self.add_text(*args, **kwargs)
+
+    def add_text(self, title, indent=True):
         for text in title.split('\n'):
             self._items.append(CliMenuHeader(text, indent=indent))
 
