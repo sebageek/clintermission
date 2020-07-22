@@ -33,9 +33,9 @@ class CliMenuCursor:
     """Collection of cursors pointing at the active menu item"""
     BULLET = '●'
     TRIANGLE = '▶'
-    CLI_STAR = '*'
-    CLI_ARROW = '-->'
-    CLI_CAT = '=^.^='
+    ASCII_STAR = '*'
+    ASCII_ARROW = '-->'
+    ASCII_CAT = '=^.^='
     CAT = '😸'
     ARROW = '→'
 
