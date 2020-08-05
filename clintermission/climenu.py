@@ -111,10 +111,15 @@ class CliMenu:
 
         if options:
             for option in options:
-                if isinstance(option, tuple) and len(option) == 2:
+                if isinstance(option, tuple):
                     self.add_option(*option)
-                else:
+                elif isinstance(option, dict):
+                    self.add_option(**option)
+                elif isinstance(option, str):
                     self.add_option(option, option)
+                else:
+                    raise ValueError("Option needs to be either tuple, dict or string, found '{}' of type {}"
+                                     .format(option, type(option)))
 
     def add_header(self, *args, **kwargs):
         return self.add_text(*args, **kwargs)
