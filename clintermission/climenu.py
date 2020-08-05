@@ -61,6 +61,15 @@ class CliMenuStyle:
         # self.header_indent = 4
 
 
+class CliSelectionStyle:
+    SQUARE_BRACKETS = ('[x]', '[ ]')
+    ROUND_BRACKETS = ('(x)', '( )')
+    CHECKMARK = ('✔', '✖')
+    THUMBS = ('👍', '👎')
+    SMILEY = ('🙂', '🙁')
+    SMILEY_EXTREME = ('😁', '😨')
+
+
 class CliMenuTheme:
     BASIC = CliMenuStyle()
     BASIC_BOLD = CliMenuStyle(header_style='bold', highlight_style='bold')
@@ -135,7 +144,6 @@ class CliMenu:
     def get_selection(self):
         if self.success:
             item = self._items[self._pos]
-
             return (item.num, item.item)
         else:
             return (None, None)
@@ -153,6 +161,9 @@ class CliMenu:
     def no_cursor(self):
         # cursor with spaces minus dedent
         return ' ' * (len(self._cursor) + 1 * self._dedent_selection)
+
+    def _transform_prefix(self, item, lineno, prefix):
+        return prefix
 
     def _transform_line(self, ti):
         if len(list(ti.fragments)) == 0:
@@ -179,6 +190,7 @@ class CliMenu:
             style = s.header_style
 
         items = [(s if s else style, t) for s, t in ti.fragments]
+        prefix = self._transform_prefix(item, ti.lineno, prefix)
 
         return Transformation([('', indent), (style, prefix)] + items)
 
@@ -227,6 +239,9 @@ class CliMenu:
 
         return lines
 
+    def _register_extra_kb_cbs(self, kb):
+        pass
+
     def _run(self):
         class MenuColorizer(Processor):
             def apply_transformation(_self, ti):
@@ -274,6 +289,8 @@ class CliMenu:
             new_line, _ = self._doc.translate_index_to_position(self._buf.cursor_position)
             self.sync_cursor_to_line(new_line)
 
+        self._register_extra_kb_cbs(self._kb)
+
         self._searchbar = SearchToolbar(ignore_case=True)
 
         text = '\n'.join(map(lambda _x: _x.text, self._items))
@@ -298,6 +315,63 @@ class CliMenu:
 
         app.run()
         self._ran = True
+
+
+class CliMultiMenu(CliMenu):
+    default_selected_icon = '[x]'
+    default_unselected_icon = '[ ]'
+
+    @classmethod
+    def set_default_selector_icons(cls, selected_icon, unselected_icon):
+        cls.default_selected_icon = selected_icon
+        cls.default_unselected_icon = unselected_icon
+
+    def __init__(self, *args, selected_icon=None, unselected_icon=None, **kwargs):
+        self._multi_selected = []
+        self._selected_icon = selected_icon or self.default_selected_icon
+        self._unselected_icon = unselected_icon or self.default_unselected_icon
+        super().__init__(*args, **kwargs)
+
+    def add_option(self, text, item=None, selected=False):
+        super().add_option(text, item)
+        if selected:
+            self._multi_selected.append(len(self._items) - 1)
+
+    def get_selection(self):
+        if self.success:
+            return [(self._items[n].num, self._items[n].item) for n in self._multi_selected]
+        else:
+            return None
+
+    def get_selection_num(self):
+        if self.success:
+            return [self._items[n].num for n in self._multi_selected]
+        else:
+            return None
+
+    def get_selection_item(self):
+        if self.success:
+            return [self._items[n].item for n in self._multi_selected]
+        else:
+            return None
+
+    def _register_extra_kb_cbs(self, kb):
+        @kb.add('space', filter=~is_searching)
+        def mark(event):
+            if self._pos not in self._multi_selected:
+                self._multi_selected.append(self._pos)
+            else:
+                self._multi_selected.remove(self._pos)
+
+    def _transform_prefix(self, item, lineno, prefix):
+        if item.focusable:
+            if lineno in self._multi_selected:
+                icon = self._selected_icon
+            else:
+                icon = self._unselected_icon
+            return "{}{} ".format(prefix, icon)
+        else:
+            return prefix
 
 
 def cli_select_item(options, header=None, abort_exc=ValueError, abort_text="Selection aborted.", style=None,
