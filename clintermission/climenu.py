@@ -75,6 +75,14 @@ class CliMenu:
     default_style = CliMenuTheme.BASIC
     default_cursor = CliMenuCursor.TRIANGLE
 
+    @classmethod
+    def set_default_style(cls, style):
+        cls.default_style = style
+
+    @classmethod
+    def set_default_cursor(cls, cursor):
+        cls.default_cursor = cursor
+
     def __init__(self, options=None, header=None, cursor=None, style=None,
                  indent=2, dedent_selection=False):
         self._items = []
@@ -86,13 +94,8 @@ class CliMenu:
         self._header_indent = indent
         self._dedent_selection = dedent_selection
 
-        self._cursor = cursor
-        if not self._cursor:
-            self._cursor = self.default_cursor
-
-        self._style = style
-        if not self._style:
-            self._style = self.default_style
+        self._cursor = cursor or self.default_cursor
+        self._style = style or self.default_style
 
         if header:
             self.add_text(header, indent=False)
