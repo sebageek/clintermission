@@ -264,7 +264,6 @@ class CliMenu:
 
         @self._kb.add('c-m', filter=~is_searching)
         @self._kb.add('right', filter=~is_searching)
-        @self._kb.add('c-space', filter=~is_searching)
         def accept(event):
             self._success = True
             event.app.exit()
