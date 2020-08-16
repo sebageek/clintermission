@@ -1,5 +1,9 @@
-# CLI-Intermission
-Tool to easily ask your user questions on the commandline. Interactive!
-...by abusing python prompt-toolkit's `Buffer` class.
+# Clintermission - Python CLI Intermission Library
+`clintermission` is a small Python library designed to quickly get a selection
+of a single or multiple items from a user. The menu shown is explicitly not a
+fullscreen menu so the user can use information in their console history to
+make a selection.
 
-Highly inspired by [go promptui](https://github.com/manifoldco/promptui)
+The menu is implemented by using `prompt-toolkit`'s `Buffer` class.
+
+Inspired by [go promptui](https://github.com/manifoldco/promptui).
