@@ -350,6 +350,7 @@ class CliMultiMenu(CliMenu):
 
     def _register_extra_kb_cbs(self, kb):
         @kb.add('space', filter=~is_searching)
+        @kb.add('right', filter=~is_searching)
         def mark(event):
             if self._pos not in self._multi_selected:
                 self._multi_selected.append(self._pos)
