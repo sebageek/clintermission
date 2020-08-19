@@ -103,8 +103,8 @@ class CliMenu:
         self._header_indent = indent
         self._dedent_selection = dedent_selection
 
-        self._cursor = cursor or self.default_cursor
-        self._style = style or self.default_style
+        self._cursor = cursor if cursor is not None else self.default_cursor
+        self._style = style if style is not None else self.default_style
 
         if header:
             self.add_text(header, indent=False)
@@ -333,8 +333,8 @@ class CliMultiMenu(CliMenu):
 
     def __init__(self, *args, selected_icon=None, unselected_icon=None, **kwargs):
         self._multi_selected = []
-        self._selected_icon = selected_icon or self.default_selected_icon
-        self._unselected_icon = unselected_icon or self.default_unselected_icon
+        self._selected_icon = selected_icon if selected_icon is not None else self.default_selected_icon
+        self._unselected_icon = unselected_icon if unselected_icon is not None else self.default_unselected_icon
         super().__init__(*args, **kwargs)
 
     def add_option(self, text, item=None, selected=False):
