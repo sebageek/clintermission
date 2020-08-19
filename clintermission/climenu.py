@@ -159,14 +159,6 @@ class CliMenu:
     def get_selection_item(self):
         return self.get_selection()[1]
 
-    def cursor(self):
-        return '{} '.format(self._cursor)
-
-    @property
-    def no_cursor(self):
-        # cursor with spaces minus dedent
-        return ' ' * (len(self._cursor) + 1 * self._dedent_selection)
-
     def _transform_prefix(self, item, lineno, prefix):
         return prefix
 
@@ -272,7 +264,7 @@ class CliMenu:
 
         @self._kb.add('N', filter=~is_searching)
         @self._kb.add('n', filter=~is_searching)
-        def search_inc(event, filter=is_searching):
+        def search_inc(event):
             if not self._bufctrl.search_state.text:
                 return
 
