@@ -83,12 +83,13 @@ class CliMenu:
         cls.default_cursor = cursor
 
     def __init__(self, options=None, header=None, cursor=None, style=None,
-                 indent=2, dedent_selection=False):
+                 indent=2, dedent_selection=False, initial_pos=0):
         self._items = []
         self._item_num = 0
         self._ran = False
         self._success = None
         self._pos = 0
+        self._initial_pos = initial_pos
         self._option_indent = indent
         self._header_indent = indent
         self._dedent_selection = dedent_selection
@@ -230,6 +231,10 @@ class CliMenu:
         pass
 
     def _run(self):
+        if self._initial_pos < 0 or self._initial_pos >= self._item_num:
+            raise ValueError("Initial position {} is out of range, needs to be in range of [0, {})"
+                             .format(self._initial_pos, self._item_num))
+
         class MenuColorizer(Processor):
             def apply_transformation(_self, ti):
                 return self._transform_line(ti)
@@ -293,7 +298,8 @@ class CliMenu:
                         self._searchbar])
 
         # set initial pos
-        self.sync_cursor_to_line(0)
+        for _ in range(self._initial_pos + 1):
+            self.next_item(1)
 
         app = Application(layout=Layout(split),
                           key_bindings=self._kb,
