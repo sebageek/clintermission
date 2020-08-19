@@ -50,16 +50,6 @@ class CliMenuStyle:
         self.highlight_style = highlight_style
         self.header_style = header_style
 
-        # self.option_color = '#aa0000'
-        # #self.highlight_color = 'fg:ansiblue bg:ansired bold'
-        # self.highlight_color = 'bold'
-        # self.cursor = ' --> '
-        # self.cursor = ' ● '
-        # self.no_cursor = '     '
-        # self.header_color = '#aa22cc'
-        # self.option_indent = 4
-        # self.header_indent = 4
-
 
 class CliSelectionStyle:
     SQUARE_BRACKETS = ('[x]', '[ ]')
