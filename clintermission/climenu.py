@@ -230,10 +230,17 @@ class CliMenu:
     def _register_extra_kb_cbs(self, kb):
         pass
 
-    def _run(self):
+    def _preflight(self):
         if self._initial_pos < 0 or self._initial_pos >= self._item_num:
             raise ValueError("Initial position {} is out of range, needs to be in range of [0, {})"
                              .format(self._initial_pos, self._item_num))
+
+    def _accept(self, event):
+        self._success = True
+        event.app.exit()
+
+    def _run(self):
+        self._preflight()
 
         class MenuColorizer(Processor):
             def apply_transformation(_self, ti):
@@ -272,8 +279,7 @@ class CliMenu:
         @self._kb.add('c-m', filter=~is_searching)
         @self._kb.add('right', filter=~is_searching)
         def accept(event):
-            self._success = True
-            event.app.exit()
+            self._accept(event)
 
         @self._kb.add('c-m', filter=is_searching)
         def accept_search(event):
@@ -317,8 +323,9 @@ class CliMultiMenu(CliMenu):
     def set_default_selector_icons(cls, selection_icons):
         cls.default_selection_icons = selection_icons
 
-    def __init__(self, *args, selection_icons=None, **kwargs):
+    def __init__(self, *args, selection_icons=None, min_selection_count=0, **kwargs):
         self._multi_selected = []
+        self._min_selection_count = min_selection_count
         self._selection_icons = selection_icons if selection_icons is not None else self.default_selection_icons
         super().__init__(*args, **kwargs)
 
@@ -363,6 +370,16 @@ class CliMultiMenu(CliMenu):
             return "{}{} ".format(prefix, icon)
         else:
             return prefix
+
+    def _preflight(self):
+        super()._preflight()
+        if self._min_selection_count > self._item_num:
+            raise ValueError("A minimum of {} items was requested for successful selection but only {} exist"
+                             .format(self._min_selection_count, self._item_num))
+
+    def _accept(self, event):
+        if len(self._multi_selected) >= self._min_selection_count:
+            super()._accept(event)
 
 
 def cli_select_item(options, header=None, abort_exc=ValueError, abort_text="Selection aborted.", style=None,
