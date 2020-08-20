@@ -311,18 +311,15 @@ class CliMenu:
 
 
 class CliMultiMenu(CliMenu):
-    default_selected_icon = '[x]'
-    default_unselected_icon = '[ ]'
+    default_selection_icons = CliSelectionStyle.SQUARE_BRACKETS
 
     @classmethod
-    def set_default_selector_icons(cls, selected_icon, unselected_icon):
-        cls.default_selected_icon = selected_icon
-        cls.default_unselected_icon = unselected_icon
+    def set_default_selector_icons(cls, selection_icons):
+        cls.default_selection_icons = selection_icons
 
-    def __init__(self, *args, selected_icon=None, unselected_icon=None, **kwargs):
+    def __init__(self, *args, selection_icons=None, **kwargs):
         self._multi_selected = []
-        self._selected_icon = selected_icon if selected_icon is not None else self.default_selected_icon
-        self._unselected_icon = unselected_icon if unselected_icon is not None else self.default_unselected_icon
+        self._selection_icons = selection_icons if selection_icons is not None else self.default_selection_icons
         super().__init__(*args, **kwargs)
 
     def add_option(self, text, item=None, selected=False):
@@ -360,9 +357,9 @@ class CliMultiMenu(CliMenu):
     def _transform_prefix(self, item, lineno, prefix):
         if item.focusable:
             if lineno in self._multi_selected:
-                icon = self._selected_icon
+                icon = self._selection_icons[0]
             else:
-                icon = self._unselected_icon
+                icon = self._selection_icons[1]
             return "{}{} ".format(prefix, icon)
         else:
             return prefix
