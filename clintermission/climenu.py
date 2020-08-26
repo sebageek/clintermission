@@ -12,7 +12,7 @@ from prompt_toolkit import search
 from prompt_toolkit.widgets import SearchToolbar
 
 
-class CliMenuHeader:
+class _CliMenuHeader:
     """Hold a menu header"""
     def __init__(self, text, indent=False):
         self.text = text
@@ -20,7 +20,7 @@ class CliMenuHeader:
         self.focusable = False
 
 
-class CliMenuOption:
+class _CliMenuOption:
     """Hold a menu option"""
     def __init__(self, text, num, item=None):
         self.text = text
@@ -117,10 +117,10 @@ class CliMenu:
 
     def add_text(self, title, indent=True):
         for text in title.split('\n'):
-            self._items.append(CliMenuHeader(text, indent=indent))
+            self._items.append(_CliMenuHeader(text, indent=indent))
 
     def add_option(self, text, item=None):
-        self._items.append(CliMenuOption(text, self._item_num, item=item))
+        self._items.append(_CliMenuOption(text, self._item_num, item=item))
         self._item_num += 1
 
     @property
@@ -131,7 +131,7 @@ class CliMenu:
         return self._success
 
     def get_options(self):
-        return [_item for _item in self._items if isinstance(_item, CliMenuOption)]
+        return [_item for _item in self._items if isinstance(_item, _CliMenuOption)]
 
     @property
     def num_options(self):
