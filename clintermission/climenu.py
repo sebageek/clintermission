@@ -83,13 +83,16 @@ class CliMenu:
         cls.default_cursor = cursor
 
     def __init__(self, options=None, header=None, cursor=None, style=None,
-                 indent=2, dedent_selection=False, initial_pos=0):
+                 indent=2, dedent_selection=False, initial_pos=0,
+                 option_prefix=' ', option_suffix=''):
         self._items = []
         self._item_num = 0
         self._ran = False
         self._success = None
         self._pos = 0
         self._initial_pos = initial_pos
+        self._option_prefix = option_prefix
+        self._option_suffix = option_suffix
         self._option_indent = indent
         self._header_indent = indent
         self._dedent_selection = dedent_selection
@@ -163,14 +166,16 @@ class CliMenu:
         # cursor
         indent = ''
         prefix = ''
+        suffix = ''
         if item.focusable:
             indent += ' ' * self._option_indent
+            suffix = self._option_suffix
 
             if ti.lineno == self._pos:
-                prefix += '{} '.format(self._cursor)
+                prefix += '{}{}'.format(self._cursor, self._option_prefix)
                 style = s.highlight_style
             else:
-                prefix += ' ' * (len(self._cursor) + 1 + 1 * self._dedent_selection)
+                prefix += ' ' * len(self._cursor) + self._option_prefix + ' ' * self._dedent_selection
                 style = s.option_style
         else:
             if item.indent:
@@ -180,7 +185,7 @@ class CliMenu:
         items = [(s if s else style, t) for s, t in ti.fragments]
         prefix = self._transform_prefix(item, ti.lineno, prefix)
 
-        return Transformation([('', indent), (style, prefix)] + items)
+        return Transformation([('', indent), (style, prefix)] + items + [(style, suffix)])
 
     def next_item(self, direction):
         if not any(item.focusable for item in self._items):

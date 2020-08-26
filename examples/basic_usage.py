@@ -68,3 +68,10 @@ print()
 # --- with shortcut, shows no menu when only a single option is provided (can be disabled with return_single=False) ---
 result = cli_select_item(["Single Foo"])
 print("Directly selected for you as it was the only option:", result)
+print()
+
+# --- prefix/suffix ---
+q = ["Foo", "Bar", "Baz"]
+m = CliMenu(q, "Time to choose:\n", option_prefix=' <<<', option_suffix='>>>')
+print("You selected", m.get_selection())
+print()
