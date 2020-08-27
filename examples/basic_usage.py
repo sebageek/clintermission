@@ -23,7 +23,7 @@ print()
 
 
 # --- custom themes ---
-style = CliMenuStyle(option_style='blue', highlight_style='cyan', header_style='green')
+style = CliMenuStyle(option='blue', highlighted='cyan', text='green')
 q = ["Foo", "Bar", "Baz"]
 m = CliMenu(q, "Choose in style:\n", style=style)
 print("You selected", m.get_selection())

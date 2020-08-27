@@ -45,10 +45,10 @@ class CliMenuStyle:
 
     Allows to select header, option and selected option color
     """
-    def __init__(self, option_style='', highlight_style='', header_style=''):
-        self.option_style = option_style
-        self.highlight_style = highlight_style
-        self.header_style = header_style
+    def __init__(self, option='', highlighted='', text=''):
+        self.option = option
+        self.highlighted = highlighted
+        self.text = text
 
 
 class CliSelectionStyle:
@@ -62,12 +62,12 @@ class CliSelectionStyle:
 
 class CliMenuTheme:
     BASIC = CliMenuStyle()
-    BASIC_BOLD = CliMenuStyle(header_style='bold', highlight_style='bold')
+    BASIC_BOLD = CliMenuStyle(text='bold', highlighted='bold')
     RED = CliMenuStyle('#aa0000', '#ee0000', '#aa0000')
     CYAN = CliMenuStyle('cyan', 'lightcyan', 'cyan')
     BLUE = CliMenuStyle('ansiblue', 'ansired', 'ansiblue')
     ANSI_CYAN = CliMenuStyle('ansicyan', 'ansibrightcyan', 'ansicyan')
-    BOLD_HIGHLIGHT = CliMenuStyle(header_style='bold', highlight_style='bold fg:black bg:white')
+    BOLD_HIGHLIGHT = CliMenuStyle(text='bold', highlighted='bold fg:black bg:white')
 
 
 class _EmptyParameter:
@@ -179,14 +179,14 @@ class CliMenu:
 
             if ti.lineno == self._pos:
                 prefix += '{}{}'.format(self._cursor, self._option_prefix)
-                style = s.highlight_style
+                style = s.highlighted
             else:
                 prefix += ' ' * len(self._cursor) + self._option_prefix + ' ' * self._dedent_selection
-                style = s.option_style
+                style = s.option
         else:
             if item.indent:
                 indent += ' ' * (self._header_indent + len(self._cursor) + 1)
-            style = s.header_style
+            style = s.text
 
         items = [(s if s else style, t) for s, t in ti.fragments]
         prefix = self._transform_prefix(item, ti.lineno, prefix)
