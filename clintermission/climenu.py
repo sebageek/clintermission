@@ -70,6 +70,10 @@ class CliMenuTheme:
     BOLD_HIGHLIGHT = CliMenuStyle(header_style='bold', highlight_style='bold fg:black bg:white')
 
 
+class _EmptyParameter:
+    pass
+
+
 class CliMenu:
     default_style = CliMenuTheme.BASIC
     default_cursor = CliMenuCursor.TRIANGLE
@@ -110,7 +114,7 @@ class CliMenu:
                 elif isinstance(option, dict):
                     self.add_option(**option)
                 elif isinstance(option, str):
-                    self.add_option(option, option)
+                    self.add_option(option)
                 else:
                     raise ValueError("Option needs to be either tuple, dict or string, found '{}' of type {}"
                                      .format(option, type(option)))
@@ -122,7 +126,9 @@ class CliMenu:
         for text in title.split('\n'):
             self._items.append(_CliMenuHeader(text, indent=indent))
 
-    def add_option(self, text, item=None):
+    def add_option(self, text, item=_EmptyParameter):
+        if item == _EmptyParameter:
+            item = text
         self._items.append(_CliMenuOption(text, self._item_num, item=item))
         self._item_num += 1
 
@@ -334,7 +340,7 @@ class CliMultiMenu(CliMenu):
         self._selection_icons = selection_icons if selection_icons is not None else self.default_selection_icons
         super().__init__(*args, **kwargs)
 
-    def add_option(self, text, item=None, selected=False):
+    def add_option(self, text, item=_EmptyParameter, selected=False):
         super().add_option(text, item)
         if selected:
             self._multi_selected.append(len(self._items) - 1)
