@@ -48,10 +48,12 @@ class CliMenuStyle:
 
     Allows to select header, option and selected option color
     """
-    def __init__(self, option='', highlighted='', text=''):
+    def __init__(self, option='', highlighted='', text='', selected=None, selected_highlighted=None):
         self.option = option
         self.highlighted = highlighted
         self.text = text
+        self.selected = selected
+        self.selected_highlighted = selected_highlighted
 
 
 class CliSelectionStyle:
@@ -351,8 +353,11 @@ class CliMultiMenu(CliMenu):
         self._selection_icons = selection_icons if selection_icons is not None else self.default_selection_icons
         super().__init__(*args, **kwargs)
 
-    def add_option(self, text, item=_EmptyParameter, selected=False):
-        super().add_option(text, item)
+    def add_option(self, text, item=_EmptyParameter, selected=False,
+                   style=None, highlighted_style=None, selected_style=None, selected_highlighted_style=None):
+        super().add_option(text, item, style, highlighted_style=highlighted_style)
+        self._items[-1].selected_style = selected_style
+        self._items[-1].selected_highlighted_style = selected_highlighted_style
         if selected:
             self._multi_selected.append(len(self._items) - 1)
 
@@ -392,6 +397,23 @@ class CliMultiMenu(CliMenu):
             return "{}{} ".format(prefix, icon)
         else:
             return prefix
+
+    def _get_style(self, item, lineno, highlighted):
+        s = self._style
+        if item.focusable and lineno in self._multi_selected:
+            if highlighted:
+                if item.selected_highlighted_style is not None:
+                    return item.selected_highlighted_style
+                if s.selected_highlighted is not None:
+                    return s.selected_highlighted
+            else:
+                if item.selected_style is not None:
+                    return item.selected_style
+                if s.selected is not None:
+                    return s.selected
+
+        # no style specified or no selected state, call parent
+        return super()._get_style(item, lineno, highlighted)
 
     def _preflight(self):
         super()._preflight()
