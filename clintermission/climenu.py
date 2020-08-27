@@ -14,18 +14,21 @@ from prompt_toolkit.widgets import SearchToolbar
 
 class _CliMenuHeader:
     """Hold a menu header"""
-    def __init__(self, text, indent=False):
+    def __init__(self, text, indent=False, style=None):
         self.text = text
         self.indent = indent
+        self.style = style
         self.focusable = False
 
 
 class _CliMenuOption:
     """Hold a menu option"""
-    def __init__(self, text, num, item=None):
+    def __init__(self, text, num, item=None, style=None, highlighted_style=None):
         self.text = text
         self.num = num
         self.item = item
+        self.style = style
+        self.highlighted_style = highlighted_style
         self.focusable = True
 
 
@@ -122,14 +125,15 @@ class CliMenu:
     def add_header(self, *args, **kwargs):
         return self.add_text(*args, **kwargs)
 
-    def add_text(self, title, indent=True):
+    def add_text(self, title, indent=True, style=None):
         for text in title.split('\n'):
-            self._items.append(_CliMenuHeader(text, indent=indent))
+            self._items.append(_CliMenuHeader(text, indent=indent, style=style))
 
-    def add_option(self, text, item=_EmptyParameter):
+    def add_option(self, text, item=_EmptyParameter, style=None, highlighted_style=None):
         if item == _EmptyParameter:
             item = text
-        self._items.append(_CliMenuOption(text, self._item_num, item=item))
+        self._items.append(_CliMenuOption(text, self._item_num, item=item,
+                                          style=style, highlighted_style=highlighted_style))
         self._item_num += 1
 
     @property
@@ -162,12 +166,22 @@ class CliMenu:
     def _transform_prefix(self, item, lineno, prefix):
         return prefix
 
+    def _get_style(self, item, lineno, highlighted):
+        s = self._style
+        if item.focusable:
+            if highlighted:
+                return item.highlighted_style if item.highlighted_style is not None else s.highlighted
+            else:
+                return item.style if item.style is not None else s.option
+        else:
+            return item.style if item.style is not None else s.text
+
     def _transform_line(self, ti):
         if len(list(ti.fragments)) == 0:
             return Transformation(ti.fragments)
         style, text = list(ti.fragments)[0]
         item = self._items[ti.lineno]
-        s = self._style
+        style = self._get_style(item, ti.lineno, ti.lineno == self._pos)
 
         # cursor
         indent = ''
@@ -179,14 +193,11 @@ class CliMenu:
 
             if ti.lineno == self._pos:
                 prefix += '{}{}'.format(self._cursor, self._option_prefix)
-                style = s.highlighted
             else:
                 prefix += ' ' * len(self._cursor) + self._option_prefix + ' ' * self._dedent_selection
-                style = s.option
         else:
             if item.indent:
                 indent += ' ' * (self._header_indent + len(self._cursor) + 1)
-            style = s.text
 
         items = [(s if s else style, t) for s, t in ti.fragments]
         prefix = self._transform_prefix(item, ti.lineno, prefix)

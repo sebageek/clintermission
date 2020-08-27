@@ -75,3 +75,14 @@ q = ["Foo", "Bar", "Baz"]
 m = CliMenu(q, "Time to choose:\n", option_prefix=' <<<', option_suffix='>>>')
 print("You selected", m.get_selection())
 print()
+
+# --- colorize everything ---
+m = CliMenu()
+m.add_text("Time to choose:\n", style="green")
+m.add_option("Yellow foo", style="yellow", highlighted_style="black bg:yellow")
+m.add_option("Green bar", style="green", highlighted_style="black bg:green")
+m.add_option("Blue baz", style="blue", highlighted_style="black bg:blue")
+m.add_text("\n...go for it!")
+
+print("You selected", m.get_selection())
+print()
