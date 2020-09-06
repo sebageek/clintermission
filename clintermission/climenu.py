@@ -93,7 +93,7 @@ class CliMenu:
 
     def __init__(self, options=None, header=None, cursor=None, style=None,
                  indent=2, dedent_selection=False, initial_pos=0,
-                 option_prefix=' ', option_suffix=''):
+                 option_prefix=' ', option_suffix='', right_pad_options=False):
         self._items = []
         self._item_num = 0
         self._ran = False
@@ -105,6 +105,7 @@ class CliMenu:
         self._option_indent = indent
         self._header_indent = indent
         self._dedent_selection = dedent_selection
+        self._right_pad_options = right_pad_options
 
         self._cursor = cursor if cursor is not None else self.default_cursor
         self._style = style if style is not None else self.default_style
@@ -258,6 +259,13 @@ class CliMenu:
         if self._initial_pos < 0 or self._initial_pos >= self._item_num:
             raise ValueError("Initial position {} is out of range, needs to be in range of [0, {})"
                              .format(self._initial_pos, self._item_num))
+
+        if self._right_pad_options:
+            # pad all item labels with spaces to have the same length
+            max_item_len = max([len(_item.text) for _item in self._items if _item.focusable])
+            for item in self._items:
+                if item.focusable:
+                    item.text += " " * (max_item_len - len(item.text))
 
     def _accept(self, event):
         self._success = True
