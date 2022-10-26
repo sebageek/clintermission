@@ -272,6 +272,10 @@ class CliMenu:
         event.app.exit()
 
     def _run(self):
+        if self._item_num == 0:
+            self._success = False
+            return
+
         self._preflight()
 
         class MenuColorizer(Processor):
@@ -284,6 +288,7 @@ class CliMenu:
         @self._kb.add('q', filter=~is_searching)
         @self._kb.add('c-c')
         def quit(event):
+            self._success = False
             event.app.exit()
 
         @self._kb.add('down', filter=~is_searching)
