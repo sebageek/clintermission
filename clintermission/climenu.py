@@ -341,7 +341,10 @@ class CliMenu:
                         self._searchbar])
 
         # set initial pos
-        for _ in range(self._initial_pos + 1):
+        while not self._items[self._pos].focusable:
+            self._pos += 1
+
+        for _ in range(self._initial_pos):
             self.next_item(1)
 
         app = Application(layout=Layout(split),
