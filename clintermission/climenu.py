@@ -132,12 +132,16 @@ class CliMenu:
         for text in title.split('\n'):
             self._items.append(_CliMenuHeader(text, indent=indent, style=style))
 
-    def add_option(self, text, item=_EmptyParameter, style=None, highlighted_style=None):
-        if item == _EmptyParameter:
-            item = text
-        self._items.append(_CliMenuOption(text, self._item_num, item=item,
-                                          style=style, highlighted_style=highlighted_style))
-        self._item_num += 1
+    def add_option(self, text, item=_EmptyParameter, disabled=False, style=None, highlighted_style=None):
+        if disabled:
+            # this is basically a text option and we just throw the item away
+            self.add_text(title=text, style=style)
+        else:
+            if item == _EmptyParameter:
+                item = text
+            opt = _CliMenuOption(text, self._item_num, item=item, style=style, highlighted_style=highlighted_style)
+            self._items.append(opt)
+            self._item_num += 1
 
     @property
     def success(self):
@@ -369,9 +373,11 @@ class CliMultiMenu(CliMenu):
         self._selection_icons = selection_icons if selection_icons is not None else self.default_selection_icons
         super().__init__(*args, **kwargs)
 
-    def add_option(self, text, item=_EmptyParameter, selected=False,
+    def add_option(self, text, item=_EmptyParameter, selected=False, disabled=False,
                    style=None, highlighted_style=None, selected_style=None, selected_highlighted_style=None):
-        super().add_option(text, item, style, highlighted_style=highlighted_style)
+        super().add_option(text, item, disabled=disabled, style=style, highlighted_style=highlighted_style)
+        if disabled:
+            return
         self._items[-1].selected_style = selected_style
         self._items[-1].selected_highlighted_style = selected_highlighted_style
         if selected:
