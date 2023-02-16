@@ -293,11 +293,13 @@ class CliMenu:
 
         @self._kb.add('down', filter=~is_searching)
         @self._kb.add('j', filter=~is_searching)
+        @self._kb.add('c-n', filter=~is_searching)
         def down(event):
             self.next_item(1)
 
         @self._kb.add('up', filter=~is_searching)
         @self._kb.add('k', filter=~is_searching)
+        @self._kb.add('c-p', filter=~is_searching)
         def up(event):
             self.next_item(-1)
 
