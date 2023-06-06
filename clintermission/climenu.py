@@ -1,6 +1,7 @@
 # Written by Sebastian Lohff <seba@someserver.de>
 # Licensed under Apache License 2.0
 from prompt_toolkit.application import Application
+from prompt_toolkit.application.current import create_app_session
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.filters import is_searching
@@ -8,6 +9,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, Window, HSplit
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.layout.processors import Processor, Transformation
+from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit import search
 from prompt_toolkit.widgets import SearchToolbar
 
@@ -353,12 +355,14 @@ class CliMenu:
         for _ in range(self._initial_pos):
             self.next_item(1)
 
-        app = Application(layout=Layout(split),
-                          key_bindings=self._kb,
-                          full_screen=False,
-                          mouse_support=False)
+        with create_app_session(output=create_output(always_prefer_tty=True)):
+            app = Application(layout=Layout(split),
+                              key_bindings=self._kb,
+                              full_screen=False,
+                              mouse_support=False)
 
-        app.run()
+            app.run()
+
         self._ran = True
 
 
